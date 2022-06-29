@@ -1,0 +1,27 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang='en'>
+    <head>
+        <meta charset="UTF-8">
+            <title>
+            {% block title %} Entip Website {% endblock %}
+            </title>
+    </head>
+<body>
+    <!--<div class="topnav">
+        <img src="../../static/main/media/entip_logo.png" alt="logo"/>
+        <a class="active" href="home/">Home</a>
+        <a name="Profile" href="">Profile</a>
+      </div>
+      <div>
+        {% load static %} <img src="{% static "main/media/entip_logo.jpg" %}" alt="entip_logo" />
+      </div>
+    -->
+        
+    {% block content %}
+    <img src="{% static 'main/images/entip_logo.png' %}" alt="entip_logo"/>
+    {% endblock %}
+    
+</body>
+
+</html>

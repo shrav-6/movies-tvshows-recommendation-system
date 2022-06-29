@@ -1,0 +1,18 @@
+{% extends "main/base.html" %}
+{% load static %}
+{% block title %} Movies {% endblock %}
+{% block content %}
+    <h1>
+        MOVIES RECOMMENDATION
+    </h1>
+    <form method="post" action="#">
+        {% csrf_token %}
+        {{form.as_p}}        
+        <div name="addusers">
+            <input type="image" name="addusers" src="{% static 'main/images/add_users.png' %}" alt="Add Users" width="70px" height="70px"/>
+        </div>
+        <div name="recommendmovies">
+            <button type="submit" name="recommendmovies" value="">RECOMMEND</button>
+        </div>
+    </form>
+{% endblock %}
