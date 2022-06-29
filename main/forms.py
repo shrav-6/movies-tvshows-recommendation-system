@@ -1,3 +1,9 @@
 from django import forms
-class EnterMovies(forms.Form):
-   moviename = forms.CharField(label = "", max_length=200, widget=forms.TextInput(attrs={'placeholder': 'Enter a movie'}))
+from django.forms import formset_factory
+class EnterMoviesForm(forms.Form):
+   moviename = forms.CharField(label = "", max_length=200, widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Enter a movie name',
+            
+        }))
+EnterMoviesFormset = formset_factory(EnterMoviesForm, extra=1)

@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, HttpResponseRedirect
-from . forms import EnterMovies
+from . forms import EnterMoviesForm, EnterMoviesFormset
 import pandas as pd
 import numpy as np
 import os
@@ -13,19 +13,39 @@ from sklearn.metrics.pairwise import cosine_similarity
 def home(response):
     return render(response, "main/home.html", {})
 
-def movies(response):
-    if response.method == 'POST': 
-        form = EnterMovies(response.POST) 
-        if form.is_valid():             
-            user_movie_name = form.cleaned_data['moviename']
-            print("movie name is:",user_movie_name)
-            single_movie_recommendation(user_movie_name,20,'single')
-            return HttpResponseRedirect('/movies/') 
+def movies(response):    
+    print(response.POST)   
+    if response.method == 'POST':
+        print('inside post') 
+        print(response.POST)
+        formset = EnterMoviesFormset(response.POST) 
+        #form = EnterMoviesForm(response.POST)
+        if formset.is_valid():
+            print('inside if case')
+            movienames = []
+            for form in formset: 
+                if form.is_valid():
+                    print('inside for loop') 
+                    print('form',form)
+                    print("form's cleaned data",form.cleaned_data)
+                    if(form.cleaned_data=={}):
+                        print('enter a movie name')
+                    else:
+                        user_movie_name = form.cleaned_data['moviename']
+                        #print("current movie name is:",user_movie_name)
+                        #print(type(user_movie_name))
+                        movienames.append(user_movie_name)
+                    
+                #single_movie_recommendation(user_movie_name,20,'single')
+        print("movienames: ",movienames)
+        return HttpResponseRedirect('/movies/') 
+        
     else:  
-        form = EnterMovies()      
-        print("form not posted")
+        formset = EnterMoviesFormset()      
+        print("refresh")
+        #return HttpResponseRedirect('/movies/') 
 
-    return render(response, "main/movies.html", {"form":form})
+    return render(response, "main/movies.html", {"formset":formset})
     #return render('main/movies.html', {}
     
 def single_movie_recommendation(moviename,headnum,flag):

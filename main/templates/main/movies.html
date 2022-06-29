@@ -1,18 +1,77 @@
 {% extends "main/base.html" %}
 {% load static %}
+{% load crispy_forms_tags %}
 {% block title %} Movies {% endblock %}
+
 {% block content %}
+    <!-- profile dropdown here to be added -->
+    <button class = ""  style="padding: 15px; background-color:#494D72; border-color: #FFFFFF; border-radius: 15px; float:right; margin-top:27px; margin-right: 40px;">
+        <a href="#">
+            <img src="{% static 'main/images/watchlist_navbar.png' %}" alt="watchlist" width="100px" height="25px">
+        </a>
+        <em class="fa fa-caret-down"></em>
+    </button>
+{% endblock %}
+
+
+{% block movies %}
     <h1>
         MOVIES RECOMMENDATION
     </h1>
     <form method="post" action="#">
         {% csrf_token %}
-        {{form.as_p}}        
-        <div name="addusers">
-            <input type="image" name="addusers" src="{% static 'main/images/add_users.png' %}" alt="Add Users" width="70px" height="70px"/>
+        {{ formset.management_form }} 
+        <div id='movies-form-list'>      
+            {% for form in formset %}
+                <div class='movies-form'>
+                {{form.as_p}}
+                </div>
+            {% endfor %}  
+        </div>      
+        <div id='empty-form' class='' style='display:none;'>{{formset.empty_form.as_p}}</div>
+        <div>
+            <input id='add-more' type="image" name="addusers" src="{% static 'main/images/add_users.png' %}" alt="Add Users" width="70px" height="70px"/>
         </div>
         <div name="recommendmovies">
-            <button type="submit" name="recommendmovies" value="">RECOMMEND</button>
+            <input id="submit" type="submit" name="recommendmovies" value="RECOMMEND"/>
         </div>
     </form>
+    <script>
+        const totalNewForms = document.getElementById('id_form-TOTAL_FORMS')
+        const emptyFormEl = document.getElementById('empty-form')
+        const addMoreBtn = document.getElementById('add-more')
+        const currentMovieForms = document.getElementsByClassName('movies-form')
+        addMoreBtn.addEventListener('click',add_new_form)
+        function add_new_form(event){
+            //console.log(args)
+            if(event) {
+                event.preventDefault() //avoid submit
+            }
+            const currentFormCount = currentMovieForms.length //+ 1
+            //console.log(currentMovieForms.length)
+            const formCopyTarget = document.getElementById('movies-form-list')
+            const copyemptyFormEl = document.getElementById('empty-form').cloneNode(true) // create copy
+            copyemptyFormEl.setAttribute('class','movies-form')
+            copyemptyFormEl.setAttribute('style','display:true;')
+            copyemptyFormEl.setAttribute('id','form-'+currentFormCount)
+            const regex = new RegExp('__prefix__','g')            
+            copyemptyFormEl.innerHTML = copyemptyFormEl.innerHTML.replace(regex,currentFormCount)
+            totalNewForms.setAttribute('value',currentFormCount+1)
+            formCopyTarget.append(copyemptyFormEl)
+
+        }
+        const submitBtn = document.getElementById('submit')
+        submitBtn.addEventListener('click',validate)
+        function validate(event){
+            console.log("inside validate")
+            const currentMovieForms = document.getElementsByClassName('movies-form')
+            for (var i = 0; i < currentMovieForms.length; i++) {
+                //console.log(currentMovieForms['form-1'].value)
+                //console.log(currentMovieForms[i].getAttribute('form-1'))
+                //console.log(event['id_form-0-moviename'].value)
+                //console.log(currentMovieForms[i].innerHTML)
+            }
+                //console.log(element.getAttribute('id'),element.getAttribute('value'))
+        }
+    </script>
 {% endblock %}

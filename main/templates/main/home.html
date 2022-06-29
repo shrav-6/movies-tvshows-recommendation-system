@@ -1,1 +1,57 @@
-{% extends 'main/base.html' %} 
+{% extends 'main/base.html' %}
+{% load static %}
+<html>
+<head>
+    {% block title %} Home {% endblock %}
+</head>
+
+<body>
+    {% block promotionalimage %}
+        <div style="display:inline">
+            <img id="promotion_logo" src="{% static 'main/images/promotion_logo_big.png' %}" alt="promotion_logo">
+        </div>
+    {% endblock %}
+
+    {% block content %}
+        <!-- profile dropdown here to be added -->
+        <div class="dropdown">
+            <button class="dropbtn" style="padding-top:10px; padding-bottom:0px; margin:0px;">
+                <img src="{% static 'main/images/profile_navbar.png' %}" alt="profile" width="130px" height="50px">
+                <em class="fa fa-caret-down"></em>
+            </button>
+            <div class="dropdown-content">
+                <a href="#">My Profile</a>
+                <a href="#">Watchlist</a>
+                <a href="#">Liked</a>
+                <a href="#">Disliked</a>
+                <a href="#">Logout</a>
+            </div>
+        </div>
+    {% endblock %}
+
+    {% block menubuttons %}
+
+            <a href="/movies/">
+                <button id="moviesMenuButton">
+                Movies
+                </button>
+            </a>
+            <br><br>
+            <a href="#">
+                <button id="seriesMenuButton">
+                TV Shows
+                </button>
+            </a>
+            <br>
+            <br>
+            <a href="#">
+                <button id="songsMenuButton">
+                    Songs
+                </button>
+            </a>
+
+    {% endblock %}
+
+
+</body>
+</html>
