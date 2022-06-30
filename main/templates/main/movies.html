@@ -35,7 +35,22 @@
         <div name="recommendmovies">
             <input id="submit" type="submit" name="recommendmovies" value="RECOMMEND"/>
         </div>
+        <div name="output">
+        
+            {%for item in recommendedmovieslist %}
+                <p>{{item}}</p>
+            {% endfor %}
+            
+            <!--
+            <ul>
+                {% for item in recommendedmovieslist %}
+                    <li> {{ item }} <li>
+                {% endfor %}
+            </ul>
+            -->
+        </div>
     </form>
+    
     <script>
         const totalNewForms = document.getElementById('id_form-TOTAL_FORMS')
         const emptyFormEl = document.getElementById('empty-form')
