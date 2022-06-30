@@ -2,7 +2,7 @@
 {% load static %}
 <html>
 <head>
-    {% block title %} Home {% endblock %}
+    {% block title %} Entip {% endblock %}
 </head>
 
 <body>
@@ -14,9 +14,9 @@
 
     {% block content %}
         <!-- profile dropdown here to be added -->
-        <div class="dropdown">
-            <button class="dropbtn" style="padding-top:10px; padding-bottom:0px; margin:0px;">
-                <img src="{% static 'main/images/profile_navbar.png' %}" alt="profile" width="130px" height="50px">
+        <div class="dropdown" style="width:11%;margin-top:1.6%">
+            <button class="dropbtn" > <!--padding-top:10px; padding-bottom:0px; margin:0px;-->
+                <img src="{% static 'main/images/profile_navbar.png' %}" alt="profile" width="100%">
                 <em class="fa fa-caret-down"></em>
             </button>
             <div class="dropdown-content">
@@ -30,7 +30,7 @@
     {% endblock %}
 
     {% block menubuttons %}
-
+        <div>
             <a href="/movies/">
                 <button id="moviesMenuButton">
                 Movies
@@ -49,6 +49,7 @@
                     Songs
                 </button>
             </a>
+        </div>
 
     {% endblock %}
 

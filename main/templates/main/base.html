@@ -1,4 +1,5 @@
 {% load static %}
+<!DOCTYPE html>
 <html lang='en'>
 <head>
     <meta charset="UTF-8">
@@ -21,69 +22,76 @@
     }
     .navbar{
         background-color: #494D72;
-        height: 115px;
+        height: 15%;
         margin: 0%;
-        padding:0%;
-        border: 1px solid rgb(0,0,0);
-        border-radius: 0px 0px 0px 0px;
+        padding: 0.5%;
     }
     #navbarlogo {
-        padding-left : 20px;
-        padding-top : 10px;
-        width: 100px;
-        height: 80px;
+        padding-left : 1%;
+        padding-top : 1%;
+        width: 6%;
+        height: 80%;
     }
     #navbartitle {
-        padding-left : 15px;
+        padding-left : 1%;
+        height: 50%;
+        width: 12%;
     }
     #navbartagline {
-        padding-left: 300px;
+        padding-left: 22%;
+        height: 60%;
+        width: 16%;
     }
     #promotion_logo {
-        height: 580px;
-        width: 550px;
-        padding-left: 70px;
+        height: 70%;
+        width: 30%;
+        padding-left: 5%;
+    }
+
+    br {
+        line-height: 100%;
     }
 
     #moviesMenuButton, #seriesMenuButton, #songsMenuButton {
         background-color: #494D72;
         border: none;
-        border-radius: 36px;
-        width: 360px;
-        height: 120px;
-        color: #ffffff;
+        border-radius: 21px;
+        width: 25%;
+        height: 15%;
+        color: #FFFFFF;
         font-family: 'Playfair Display';
         font-weight: 550;
-        font-size: 27px;
+        font-size: 150%;
         text-align: center;
-        display:inline;
+        display:inline-block;
+        vertical-align: top;
     }
     #moviesMenuButton:hover, #seriesMenuButton:hover, #songsMenuButton:hover {
         background-color: #000000;
         cursor:pointer;
-
     }
 
     #moviesMenuButton {
-        margin-top: 140px;
-        margin-left: 300px;
-        position: absolute;
+        margin-top: -25%;
+        margin-left: 60%;
+        position: fixed;
     }
+
     #seriesMenuButton {
-        margin-top: -320px;
-        margin-left: 920px;
-        position: absolute;
+        margin-top: -19%;
+        margin-left: 60%;
+        position:fixed;
     }
     #songsMenuButton {
-        margin-top: -215px;
-        margin-left: 920px;
-        position: absolute;
+        margin-top: -13%;
+        margin-left: 60%;
+        position:fixed;
     }
 
     .dropdown-content a {
         float: none;
         color: black;
-        padding: 12px 16px;
+        padding: 8%;
         text-decoration: none;
         display: block;
         text-align: left;
@@ -98,10 +106,9 @@
         border: none;
         outline: none;
         color: white;
-        padding: 14px 16px;
+        padding: 8px;
         background-color: inherit;
         font-family: inherit;
-        margin: 0;
     }
 
     .navbar a:hover, .dropdown:hover .dropbtn {
@@ -111,24 +118,56 @@
 
     .dropdown-content {
         display: none;
-        position: absolute;
+        position: relative;
         background-color: #f9f9f9;
-        min-width: 160px;
+        min-width: 16%;
         box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
         z-index: 1;
     }
     .dropdown {
         float: right;
-        margin-top: 25px;
-        margin-right: 30px;
+        margin-top: 1.5%;
+        margin-right: 3%;
         overflow: hidden;
     }
+
+    input[list="movieslist"]{
+        padding:10px;
+        margin: 10px auto;
+        display: block;
+        border-radius: 5px;
+        border: 1px solid lightgrey;
+        background:none;
+        width: 450px;
+        color: black;
+    }
+
+    input[list="movieslist"]:focus{
+        outline: none;
+    }
+
+    .controls {
+        width: 294px;
+        margin: 15px auto;
+    }
+
+    datalist option {
+        font-size: 0.8em;
+        padding: 0.3em 1em;
+        background-color: #FFFFFF;
+        cursor: pointer;
+    }
+
+    a {
+        color: black;
+        text-decoration: none;
+    }
+
+
 
 </style>
 
 <body>
-
-    <!--<img src="{% static 'main/images/entip_logo.png' %}" alt="entip_logo"/> -->
     <nav class="navbar bg-light">
         <div class="container-fluid">
             <img id = "navbarlogo" src="{% static 'main/images/entip_logo.png' %}" alt="logo">

@@ -1,13 +1,12 @@
+<!DOCTYPE html>
 {% extends "main/base.html" %}
 {% load static %}
-{% load crispy_forms_tags %}
 {% block title %} Movies {% endblock %}
-
 {% block content %}
     <!-- profile dropdown here to be added -->
-    <button class = ""  style="padding: 15px; background-color:#494D72; border-color: #FFFFFF; border-radius: 15px; float:right; margin-top:27px; margin-right: 40px;">
+    <button class = ""  style="padding: 15px; background-color:#494D72; border-color: #FFFFFF; border-radius: 15px; float:right; margin-top:24px; margin-right: 40px;">
         <a href="#">
-            <img src="{% static 'main/images/watchlist_navbar.png' %}" alt="watchlist" width="100px" height="25px">
+            <img src="{% static 'main/images/watchlist_navbar.png' %}" alt="watchlist" width="75%" height="10%">
         </a>
         <em class="fa fa-caret-down"></em>
     </button>
@@ -15,78 +14,98 @@
 
 
 {% block movies %}
-    <h1>
+    <h1 align="center" style="color: #494d72">
         MOVIES RECOMMENDATION
     </h1>
-    <form method="post" action="#">
+    <form method="post" action="#" onsubmit="return validateForm()">
         {% csrf_token %}
-        {{ formset.management_form }} 
-        <div id='movies-form-list'>      
-            {% for form in formset %}
-                <div class='movies-form'>
-                {{form.as_p}}
-                </div>
-            {% endfor %}  
-        </div>      
-        <div id='empty-form' class='' style='display:none;'>{{formset.empty_form.as_p}}</div>
-        <div>
-            <input id='add-more' type="image" name="addusers" src="{% static 'main/images/add_users.png' %}" alt="Add Users" width="70px" height="70px"/>
-        </div>
-        <div name="recommendmovies">
-            <input id="submit" type="submit" name="recommendmovies" value="RECOMMEND"/>
+        <div class="wrapper">
+            <div id="survey_options">
+                <input list="movieslist" name="user_movies[]" class="user_movies" placeholder="Enter movie name" required/>
+                <datalist id="movieslist">
+                </datalist>
+            </div>
+            <div class="controls" align="center">
+                <a href="#" id="add-more">
+                    <img src="{% static 'main/images/add_users_btn.png' %}" alt="Add Users" width="30%" height="30%"/>
+                </a>
+                <a href="#" id="remove-user">
+                    <img src="{% static 'main/images/remove_users.png' %}" alt="Remove Users" width="30%" height="30%"/>
+                </a>
+                <br><br>
+            </div>
+            <button id="recommendBtn" class="submit" type="submit" name="recommendmovies" values="" style="border:none; padding:0%; margin-left:35%; background-color: #FFFFFF; width:30%; cursor:pointer" >
+                    <img src="{% static 'main/images/recommendBtn.png' %}" alt="RecommendBtn" width="30%"/>
+            </button>
         </div>
         <div name="output">
-        
-            {%for item in recommendedmovieslist %}
-                <p>{{item}}</p>
+            {%for k,v in movie_imagepath_dict.items %}
+                <figure style="display: inline-block; padding-left: 150px; padding-right:0px; padding-bottom:20px;">
+                        <img src="{% static v %}" alt=k width="45%" height="45%" caption=k style="border-radius: 15px; "/> 
+                        <figcaption style="text-align: center; font-size: 25px; position: absolute;">{{k}}</figcaption>
+                </figure>                
             {% endfor %}
-            
-            <!--
-            <ul>
-                {% for item in recommendedmovieslist %}
-                    <li> {{ item }} <li>
-                {% endfor %}
-            </ul>
-            -->
         </div>
     </form>
-    
     <script>
-        const totalNewForms = document.getElementById('id_form-TOTAL_FORMS')
-        const emptyFormEl = document.getElementById('empty-form')
-        const addMoreBtn = document.getElementById('add-more')
-        const currentMovieForms = document.getElementsByClassName('movies-form')
-        addMoreBtn.addEventListener('click',add_new_form)
-        function add_new_form(event){
-            //console.log(args)
-            if(event) {
-                event.preventDefault() //avoid submit
-            }
-            const currentFormCount = currentMovieForms.length //+ 1
-            //console.log(currentMovieForms.length)
-            const formCopyTarget = document.getElementById('movies-form-list')
-            const copyemptyFormEl = document.getElementById('empty-form').cloneNode(true) // create copy
-            copyemptyFormEl.setAttribute('class','movies-form')
-            copyemptyFormEl.setAttribute('style','display:true;')
-            copyemptyFormEl.setAttribute('id','form-'+currentFormCount)
-            const regex = new RegExp('__prefix__','g')            
-            copyemptyFormEl.innerHTML = copyemptyFormEl.innerHTML.replace(regex,currentFormCount)
-            totalNewForms.setAttribute('value',currentFormCount+1)
-            formCopyTarget.append(copyemptyFormEl)
 
-        }
-        const submitBtn = document.getElementById('submit')
-        submitBtn.addEventListener('click',validate)
-        function validate(event){
-            console.log("inside validate")
-            const currentMovieForms = document.getElementsByClassName('movies-form')
-            for (var i = 0; i < currentMovieForms.length; i++) {
-                //console.log(currentMovieForms['form-1'].value)
-                //console.log(currentMovieForms[i].getAttribute('form-1'))
-                //console.log(event['id_form-0-moviename'].value)
-                //console.log(currentMovieForms[i].innerHTML)
+        const survey_options = document.getElementById('survey_options');
+        const add_more_fields = document.getElementById('add-more');
+        const remove_fields = document.getElementById('remove-user');
+        const input_tags = survey_options.getElementsByTagName('input');
+
+        add_more_fields.addEventListener('click', add_movie_func)
+        function add_movie_func(event){
+            if(event){
+                event.preventDefault();
             }
-                //console.log(element.getAttribute('id'),element.getAttribute('value'))
+            var newField = document.createElement('input');
+            newField.setAttribute('list','movieslist');
+            newField.setAttribute('name','user_movies[]');
+            newField.setAttribute('class','user_movies');
+            newField.setAttribute('size',60);
+            newField.setAttribute('required','');
+            newField.setAttribute('placeholder','Enter movie name');
+            survey_options.appendChild(newField);
         }
+
+
+        remove_fields.addEventListener('click', remove_movie_func)
+        function remove_movie_func(event){
+            if(event){
+                event.preventDefault();
+            }
+            if(input_tags.length > 1){
+                survey_options.removeChild(input_tags[(input_tags.length) - 1]);
+            }
+        }
+        function readFileMovieNames(file)
+        {
+            var rawFile = new XMLHttpRequest();
+            rawFile.open("GET", file, false);
+            rawFile.onreadystatechange = function ()
+            {
+                if(rawFile.readyState === 4)
+                {
+                    if(rawFile.status === 200 || rawFile.status == 0)
+                    {
+                        var allText = rawFile.responseText;
+                        //console.log(allText);
+                        const movienames_array = allText.split(/\r?\n/)
+                        //console.log(movienames_array);
+                        var list = document.getElementById('movieslist');
+                        movienames_array.forEach(function(item){
+                           var option = document.createElement('option');
+                           option.value = item;
+                           list.appendChild(option);
+                        });
+                    }
+                }
+
+            }
+            rawFile.send(null);
+        }
+
+        readFileMovieNames('../../static/main/database/all_movie_names.txt');
     </script>
 {% endblock %}

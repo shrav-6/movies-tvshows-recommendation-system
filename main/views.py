@@ -1,6 +1,5 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, HttpResponseRedirect
-from . forms import EnterMoviesForm, EnterMoviesFormset
 import pandas as pd
 import numpy as np
 import os
@@ -11,79 +10,79 @@ from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from nltk.corpus import wordnet
 nltk.download('wordnet')
-# Create your views here.
+import requests
+import io
+from PIL import Image
+import PIL
+import json
+
 def home(response):
     return render(response, "main/home.html", {})
 
-def movies(response):    
-    #print(response.POST)  
-    recommended_movies_list = [] 
+def movies(response):
+    movie_imagepath_dict = {}    
+    recommended_movies_list = []     
     if response.method == 'POST':
-        print('inside post') 
-        #print(response.POST)
-        formset = EnterMoviesFormset(response.POST) 
-        #form = EnterMoviesForm(response.POST)
-        if formset.is_valid():
-            #print('inside if case')
-            movienames = []
-            for form in formset: 
-                if form.is_valid():
-                    #print('inside for loop') 
-                    #print('form',form)
-                    #print("form's cleaned data",form.cleaned_data)
-                    if(form.cleaned_data=={}):
-                        print('enter a movie name')
-                    else:
-                        user_movie_name = form.cleaned_data['moviename']
-                        #print("current movie name is:",user_movie_name)
-                        #print(type(user_movie_name))
-                        movienames.append(user_movie_name)
-            model_movies_df = pd.read_csv(r"./main/static/main/database/5000_records_movies.csv",converters={'genres' : list,'overview':list,'keywords':list,'cast':list,'crew':list}) 
-            if len(movienames) == 1:
-                sorted_movie_list = single_movie_recommendation(model_movies_df,movienames[0],16,'single')
-                #print(single_recommended_movies)
-                
-                for i in sorted_movie_list:
-                    recommended_movies_list.append(" ".join(model_movies_df[model_movies_df['movie_id']==i[0]].title.tolist()))
-                print(recommended_movies_list)
-            else:
-                recommended_movies_list = rec(model_movies_df,movienames) 
-                print(recommended_movies_list)
-        #print("movienames: ",movienames)
-        #return HttpResponseRedirect('/movies/') 
+        print("inside POST method")
+        alldata = response.POST
+        print(alldata)
+        movienames = alldata.getlist('user_movies[]')
+        for movie in movienames:
+            if movie == '':
+                print("ERROR! NULL MOVIE NOT ALLOWED")
+        
+        model_movies_df = pd.read_csv(r"./main/static/main/database/5000_records_movies.csv",converters={'genres' : list,'overview':list,'keywords':list,'cast':list,'crew':list}) 
+        if len(movienames) == 1:
+            sorted_movie_list = single_movie_recommendation(model_movies_df,movienames[0],16,'single')           
+            for i in sorted_movie_list:
+                recommended_movies_list.append(" ".join(model_movies_df[model_movies_df['movie_id']==i[0]].title.tolist()))
+            print(recommended_movies_list)            
+        else:
+            recommended_movies_list = multiple_movie_recommendation(model_movies_df,movienames) 
+            print(recommended_movies_list) 
+        #get images
+        name_image_dict = name_to_image(model_movies_df,recommended_movies_list)
+        movie_imagepath_dict = get_image_files(name_image_dict)    
+        print(movie_imagepath_dict)
+        print(os.getcwd())
+        with open("D:\entipwebsite\src\main\static\main\database\movie_imagepath.json", "w") as outfile:
+            json.dump(movie_imagepath_dict, outfile)
+        'main/images/18.png'
+        '''for v in movie_imagepath_dict.values():
+            v = v.replace('/','\\')
+            v = 'D:\entipwebsite\src\main\static\\'+v
+            print('remove file path',v)
+            os.remove(v)'''
         
     else:  
-        formset = EnterMoviesFormset()      
         print("refresh")
-        #return HttpResponseRedirect('/movies/') 
-
-        '''    mydict={}
-    for i in range(len(recommended_movies_list)):
-        mydict[i]=recommended_movies_list[i]'''
-        
-    return render(response,"main/movies.html", {"formset":formset, "recommendedmovieslist":recommended_movies_list})
-    #return render('main/movies.html', {}
+        file_exists = os.path.exists("D:\entipwebsite\src\main\static\main\database\movie_imagepath.json")
+        if file_exists:
+            with open("D:\entipwebsite\src\main\static\main\database\movie_imagepath.json",) as json_file:
+                movie_imagepath_dict = json.load(json_file)
+            if movie_imagepath_dict:
+                for v in movie_imagepath_dict.values():
+                    v = v.replace('/','\\')
+                    v = 'D:\entipwebsite\src\main\static\\'+v
+                    print('remove file path',v)
+                    os.remove(v)
+            movie_imagepath_dict = {}
+            with open("D:\entipwebsite\src\main\static\main\database\movie_imagepath.json", "w") as outfile:
+                json.dump(movie_imagepath_dict, outfile)
+                    
+       
+    return render(response,"main/movies.html", {"recommendedmovieslist":recommended_movies_list,"movie_imagepath_dict":movie_imagepath_dict})
     
 def single_movie_recommendation(model_movies_df,moviename,headnum,flag):
-    print("inside single_movie_recommendation")    
     if flag == 'multiple':
         model_movies_df['tags'] = model_movies_df['genres'] + model_movies_df['keywords']
     if flag == 'single':
         model_movies_df['tags'] = model_movies_df['overview'] + model_movies_df['genres'] + model_movies_df['keywords'] + model_movies_df['cast'] + model_movies_df['crew']
     
     df = model_movies_df[['movie_id','title','tags','vote_average','popularity']]
-    #print(df.head())
     
     df['tags'] = df['tags'].apply(lambda x: "".join(x))
-    df['tags'] = df['tags'].apply(lambda x: x.lower())
-
-    psobj = PorterStemmer()
-    def stem(text):
-        temp = []
-        for i in text.split():
-            temp.append(psobj.stem(i))
-        return " ".join(temp)
-
+    df['tags'] = df['tags'].apply(lambda x: x.lower())    
     df['tags'] = df['tags'].apply(stem)
     cvobj = CountVectorizer(max_features=6000, stop_words='english')
     vectors = cvobj.fit_transform(df['tags']).toarray()    
@@ -101,17 +100,9 @@ def single_movie_recommendation(model_movies_df,moviename,headnum,flag):
         imdbrecommendedlist.append(i)
 
     roundimdblist = []
-    sortedimdblist = []
     for i in imdbrecommendedlist:
         roundimdblist.append([i[0],round(i[1],2),i[2]])
-    sortedimdblist = sorted(roundimdblist, reverse = True, key = lambda x: (x[1],x[2]))
-    if flag=='single':
-        #print(sortedimdblist)
-        #for i in sortedimdblist:
-            #single_recommended_movies = model_movies_df[model_movies_df['movie_id']==i[0]].title.tolist()
-        return sortedimdblist
-    else:
-        return sortedimdblist
+    return sorted(roundimdblist, reverse = True, key = lambda x: (x[1],x[2]))
 
 def synonym(word):
     synonyms = []
@@ -130,7 +121,7 @@ def stem(text):
 def functolist(lst):
   return " ".join(lst)
 
-def rec(df,multiplemovielist):
+def multiple_movie_recommendation(df,multiplemovielist):
     print("mulitple movie list",multiplemovielist)
     firstlevellist = []
     for i in multiplemovielist: 
@@ -164,9 +155,43 @@ def rec(df,multiplemovielist):
         newmovielist = sorted(newmovielist, reverse=True, key= lambda x: x[1])[:16]
     else:
         newmovielist = sorted(newmovielist, reverse=True, key= lambda x: x[1])
-    #print(len(newmovielist))
     mylist=[]
     for item in newmovielist:
         mylist.append(item[0])
-    #print(mylist)
     return mylist
+
+def name_to_image(df,movienamelist):
+    name_image_dict = {}
+    for item in movienamelist:        
+        someseries = df[df['title']==item]['image info']
+        movie_id = df[df['title']==item]['movie_id'].tolist()[0]
+        i = someseries.tolist()[0]
+        image_dict = eval(i)
+        j = 0
+        for key in image_dict.keys():
+            if key == 'bfp' and image_dict[key] != None: 
+                name_image_dict[item] = [image_dict['bfp'],movie_id]
+                break
+            elif key == 'lfp' and image_dict[key] != None:
+                name_image_dict[item] = [image_dict['lfp'],movie_id]
+                break
+            elif key == 'pfp' and image_dict[key] != None:
+                name_image_dict[item] = [image_dict['pfp'],movie_id]
+                break
+            else:
+                name_image_dict[item] = "default.png"
+            j=0
+    return name_image_dict
+
+def get_image_files(name_image_dict):
+    movie_imagepath_dict = {}
+    for k,v in name_image_dict.items():        
+            print_image_obj = requests.get("https://image.tmdb.org/t/p/original/{}".format(v[0]))
+            image_bytes = io.BytesIO(print_image_obj.content)
+            image = PIL.Image.open(image_bytes) 
+            resize_image = image.resize((500, 400)) 
+            #resize_image.show()
+            file_name=f"D:\entipwebsite\src\main\static\main\images\{str(v[1])}.png"
+            movie_imagepath_dict[k] = f"main/images/{str(v[1])}.png"    # main/images/file.png  # "{% static 'main/images/add_users_btn.png' %}" #r"{% static " +f"'main/images/{str(v[1])}.png'" + r" %}" 
+            resize_image.save(file_name, 'PNG')
+    return movie_imagepath_dict
